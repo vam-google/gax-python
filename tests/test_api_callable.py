@@ -142,16 +142,25 @@ class TestCreateApiCallable(unittest2.TestCase):
                          'updated')
 
     def test_call_merge_options_metadata(self):
-        this_kwargs = {'key': 'value', 'metadata':
-                       [('key1', 'val1'), ('key2', 'val2')]}
-        settings = _CallSettings(kwargs=this_kwargs)
+        settings_kwargs = {
+            'key': 'value',
+            'metadata': [('key1', 'val1'), ('key2', 'val2')]
+        }
+
+        settings = _CallSettings(kwargs=settings_kwargs)
         my_callable = api_callable.create_api_call(
             lambda _req, _timeout, **kwargs: kwargs, settings)
-        self.assertEqual(my_callable(None), this_kwargs)
-        this_kwargs['metadata'] = [('key1', 'updated_val1'), ('key2', 'val2')]
+
+        expected_kwargs = settings_kwargs
+        self.assertEqual(my_callable(None), expected_kwargs)
+
+        expected_kwargs = {
+            'key': 'value',
+            'metadata': [('key1', 'updated_val1'), ('key2', 'val2')]
+        }
         self.assertEqual(
             my_callable(None, CallOptions(metadata=[('key1', 'updated_val1')])),
-            this_kwargs)
+            expected_kwargs)
 
     @mock.patch('time.time')
     @mock.patch('google.gax.config.exc_to_code')
