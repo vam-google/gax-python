@@ -173,7 +173,7 @@ class TestCreateApiCallable(unittest2.TestCase):
             my_callable(None, CallOptions(metadata=[('key3', 'val3')])),
             expected_kwargs)
 
-        # Do all: add a new key and override an existing one in in
+        # Do all: add a new key and override an existing one in
         # settings.kwargs['metadata']
         expected_kwargs = {
             'key': 'value',
