@@ -151,15 +151,37 @@ class TestCreateApiCallable(unittest2.TestCase):
         my_callable = api_callable.create_api_call(
             lambda _req, _timeout, **kwargs: kwargs, settings)
 
+        # Merge empty options, settings.kwargs['metadata'] remain unchanged
         expected_kwargs = settings_kwargs
         self.assertEqual(my_callable(None), expected_kwargs)
 
+        # Override an existing key in settings.kwargs['metadata']
         expected_kwargs = {
             'key': 'value',
-            'metadata': [('key1', 'updated_val1'), ('key2', 'val2')]
+            'metadata': [('key1', '_val1'), ('key2', 'val2')]
         }
         self.assertEqual(
-            my_callable(None, CallOptions(metadata=[('key1', 'updated_val1')])),
+            my_callable(None, CallOptions(metadata=[('key1', '_val1')])),
+            expected_kwargs)
+
+        # Add a new key in settings.kwargs['metadata']
+        expected_kwargs = {
+            'key': 'value',
+            'metadata': [('key3', 'val3'), ('key1', 'val1'), ('key2', 'val2')]
+        }
+        self.assertEqual(
+            my_callable(None, CallOptions(metadata=[('key3', 'val3')])),
+            expected_kwargs)
+
+        # Do all: add a new key and override an existing one in in
+        # settings.kwargs['metadata']
+        expected_kwargs = {
+            'key': 'value',
+            'metadata': [('key3', 'val3'), ('key2', '_val2'), ('key1', 'val1')]
+        }
+        self.assertEqual(
+            my_callable(None, CallOptions(
+                metadata=[('key3', 'val3'), ('key2', '_val2')])),
             expected_kwargs)
 
     @mock.patch('time.time')
